@@ -4,13 +4,18 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import ArtworkCard from '../components/ArtworkCard.jsx';
 import { generateArtworkTitle } from '../utils/generateArtworkTitle.js';
-
-// Contentful client for fetching artwork entries
 import { client } from '../utils/contentfulClient.js';
 
 // Import static image used for the Visual Storytelling section only
 import artwork5 from '../assets/artwork5.png';
 
+/**
+ * Home page fetches up to four featured artworks from Contentful on mount.
+ * It displays a hero section, a responsive grid of featured works, a
+ * storytelling explanation and a call‑to‑action. The featured works
+ * section includes loading and error states; if no featured artworks are
+ * returned or if the fetch fails, a user‑friendly message is shown.
+ */
 export default function Home() {
   // Featured artworks fetched from Contentful
   const [featuredWorks, setFeaturedWorks] = React.useState([]);
@@ -25,14 +30,21 @@ export default function Home() {
           content_type: 'artwork',
           'fields.featured': true,
           limit: 4,
+          include: 2, // ensure linked assets such as images are included
         });
-
-        const mapped = response.items.map((entry) => ({
-          id: entry.sys.id,
-          title: entry.fields.title || '',
-          category: entry.fields.category,
-          src: `https:${entry.fields.image.fields.file.url}?w=600&h=600&fit=thumb&fm=webp`,
-        }));
+        const mapped = response.items.map((entry) => {
+          const { title = '', category, image } = entry.fields;
+          // Some assets may not be resolved if include is insufficient; check existence
+          const imageUrl = image?.fields?.file?.url ? `https:${image.fields.file.url}` : '';
+          return {
+            id: entry.sys.id,
+            title,
+            category,
+            src: imageUrl,
+            description:
+              entry.fields.description?.content?.[0]?.content?.[0]?.value || '',
+          };
+        });
         setFeaturedWorks(mapped);
         setFeaturedLoading(false);
       } catch (err) {
@@ -133,7 +145,14 @@ export default function Home() {
             ) : (
               featuredWorks.map((work, index) => {
                 const title = generateArtworkTitle(work, index);
-                return <ArtworkCard key={work.id ?? index} {...work} title={title} />;
+                return (
+                  <ArtworkCard
+                    key={work.id ?? index}
+                    title={title}
+                    image={work.src}
+                    category={work.category}
+                  />
+                );
               })
             )}
           </div>
@@ -166,7 +185,11 @@ export default function Home() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
           >
-            <img src={artwork5} alt="Storytelling illustration" className="rounded-lg shadow-lg w-full h-auto" />
+            <img
+              src={artwork5}
+              alt="Storytelling illustration"
+              className="rounded-lg shadow-lg w-full h-auto"
+            />
           </motion.div>
         </div>
       </section>

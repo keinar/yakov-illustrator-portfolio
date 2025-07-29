@@ -1,43 +1,32 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import Skeleton from './Skeleton.jsx';
 
 /**
- * ArtworkCard displays a single piece of artwork with a loading skeleton
- * until the image has fully loaded.  On hover the card scales slightly
- * and reveals an overlay containing the artwork title and category.  The
- * component is responsive and accessible via alt text.
+ * Reusable card component for displaying an artwork thumbnail. Shows a
+ * skeleton placeholder while the image loads, then fades the image in.
+ * Hovering over the card reveals the title and category. The image is
+ * still loaded when hidden via opacity so the onLoad event fires, avoiding
+ * the bug where hidden images never load.
  */
-export default function ArtworkCard({ src, title, category, alt }) {
+export default function ArtworkCard({ title, image, category }) {
   const [loaded, setLoaded] = useState(false);
-
   return (
-    <motion.div
-      className="relative overflow-hidden rounded-lg shadow-lg bg-background-light dark:bg-background-dark group"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
-    >
-      {!loaded && <Skeleton className="w-full h-64" />}
+    <div className="relative overflow-hidden rounded-lg shadow-lg bg-background-light dark:bg-background-dark group">
+      {/* Skeleton overlay while image loads */}
+      <div
+        className={`${loaded ? 'hidden' : ''} bg-muted-light dark:bg-muted-dark rounded animate-pulse w-full h-64 absolute inset-0`}
+      />
       <img
-        src={src}
-        alt={alt || title}
+        src={image}
+        alt={title}
         loading="lazy"
         onLoad={() => setLoaded(true)}
-        className={`w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105 ${loaded ? 'block' : 'hidden'}`}
+        className={`w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105 ${loaded ? 'opacity-100' : 'opacity-0'}`}
       />
-      {/* Hover overlay */}
-      <motion.div
-        className="absolute inset-0 bg-black/50 dark:bg-black/60 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
-      >
+      {/* Overlay with title and category on hover */}
+      <div className="absolute inset-0 bg-black/50 dark:bg-black/60 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <h3 className="text-white font-semibold text-lg">{title}</h3>
-        {category && (
-          <span className="text-sm text-gray-200 uppercase tracking-wider">{category}</span>
-        )}
-      </motion.div>
-    </motion.div>
+        {category && <span className="text-sm text-gray-200 uppercase tracking-wider">{category}</span>}
+      </div>
+    </div>
   );
 }
