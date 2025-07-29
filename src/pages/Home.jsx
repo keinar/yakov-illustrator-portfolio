@@ -26,11 +26,12 @@ export default function Home() {
           'fields.featured': true,
           limit: 4,
         });
+
         const mapped = response.items.map((entry) => ({
           id: entry.sys.id,
           title: entry.fields.title || '',
           category: entry.fields.category,
-          src: `https:${entry.fields.image.fields.file.url}`,
+          src: `https:${entry.fields.image.fields.file.url}?w=600&h=600&fit=thumb&fm=webp`,
         }));
         setFeaturedWorks(mapped);
         setFeaturedLoading(false);

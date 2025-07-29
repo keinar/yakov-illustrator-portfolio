@@ -9,6 +9,16 @@ import { generateArtworkTitle } from '../utils/generateArtworkTitle.js';
 // Contentful client for fetching artwork entries
 import { client } from '../utils/contentfulClient.js';
 
+/**
+ * Portfolio page showcases the full collection of artworks. Users can filter
+ * by category and toggle between grid and list views. The page fetches
+ * artwork data from Contentful, including a description field used in the
+ * lightbox modal. Clicking on any artwork opens a full‑screen modal where
+ * the image, title and description can be viewed. Users can navigate
+ * between artworks with arrows or keyboard keys and close the modal by
+ * clicking outside, using the escape key, or the close button. The
+ * background scroll is disabled while the modal is open.
+ */
 export default function Portfolio() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState('grid');
@@ -17,6 +27,10 @@ export default function Portfolio() {
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // State for lightbox modal
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Fetch artworks from Contentful on mount
   useEffect(() => {
@@ -29,6 +43,8 @@ export default function Portfolio() {
             title: entry.fields.title || '',
             category: entry.fields.category,
             src: `https:${entry.fields.image.fields.file.url}`,
+            description:
+              entry.fields.description?.content?.[0]?.content?.[0]?.value || '',
           };
         });
         setArtworks(mapped);
@@ -53,6 +69,74 @@ export default function Portfolio() {
     if (selectedCategory === 'All') return artworks;
     return artworks.filter((a) => a.category === selectedCategory);
   }, [selectedCategory, artworks]);
+
+  /**
+   * Open modal for selected artwork. Save the index so we can navigate
+   * relative to the filtered list.
+   */
+  const openModal = (art, index) => {
+    setSelectedArtwork(art);
+    setCurrentIndex(index);
+  };
+
+  /**
+   * Close modal and restore scroll.
+   */
+  const closeModal = () => {
+    setSelectedArtwork(null);
+  };
+
+  /**
+   * Show previous artwork in filtered list, wrapping around if at start.
+   */
+  const showPrev = () => {
+    if (filteredArtworks.length === 0) return;
+    const newIndex = (currentIndex - 1 + filteredArtworks.length) % filteredArtworks.length;
+    setCurrentIndex(newIndex);
+    setSelectedArtwork(filteredArtworks[newIndex]);
+  };
+
+  /**
+   * Show next artwork in filtered list, wrapping around if at end.
+   */
+  const showNext = () => {
+    if (filteredArtworks.length === 0) return;
+    const newIndex = (currentIndex + 1) % filteredArtworks.length;
+    setCurrentIndex(newIndex);
+    setSelectedArtwork(filteredArtworks[newIndex]);
+  };
+
+  /**
+   * Handle keydown events for modal navigation and closing. Left/right arrows
+   * navigate between artworks; Escape closes the modal.
+   */
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (!selectedArtwork) return;
+      if (e.key === 'Escape') {
+        closeModal();
+      } else if (e.key === 'ArrowLeft') {
+        showPrev();
+      } else if (e.key === 'ArrowRight') {
+        showNext();
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedArtwork, currentIndex, filteredArtworks]);
+
+  // Disable background scroll when modal is open
+  useEffect(() => {
+    if (selectedArtwork) {
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [selectedArtwork]);
 
   // Render loading state
   if (loading) {
@@ -162,9 +246,15 @@ export default function Portfolio() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3, ease: 'easeOut' }}
-                      className="overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark"
+                      className="overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark cursor-pointer"
+                      onClick={() => openModal({ ...art, title }, index)}
                     >
-                      <img src={art.src} alt={title} className="w-full h-56 object-cover" loading="lazy" />
+                      <img
+                        src={art.src}
+                        alt={title}
+                        className="w-full h-56 object-cover"
+                        loading="lazy"
+                      />
                       <div className="p-4">
                         <h3 className="font-semibold text-lg mb-1">{title}</h3>
                         <p className="text-sm text-muted-light dark:text-muted-dark uppercase tracking-wider">
@@ -189,7 +279,8 @@ export default function Portfolio() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       transition={{ duration: 0.3, ease: 'easeOut' }}
-                      className="flex flex-col md:flex-row overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark"
+                      className="flex flex-col md:flex-row overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark cursor-pointer"
+                      onClick={() => openModal({ ...art, title }, index)}
                     >
                       <img
                         src={art.src}
@@ -215,6 +306,79 @@ export default function Portfolio() {
           )}
         </div>
       </section>
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedArtwork && (
+          <motion.div
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeModal}
+          >
+            {/* Close button floating in overlay */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                closeModal();
+              }}
+              className="absolute top-6 right-6 text-white text-3xl cursor-pointer"
+            >
+              ✕
+            </button>
+            {/* Left arrow */}
+            {filteredArtworks.length > 1 && (
+              <div
+                className="absolute top-1/2 left-6 text-white text-4xl cursor-pointer select-none"
+                style={{ transform: 'translateY(-50%)' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showPrev();
+                }}
+              >
+                ‹
+              </div>
+            )}
+            {/* Right arrow */}
+            {filteredArtworks.length > 1 && (
+              <div
+                className="absolute top-1/2 right-6 text-white text-4xl cursor-pointer select-none"
+                style={{ transform: 'translateY(-50%)' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showNext();
+                }}
+              >
+                ›
+              </div>
+            )}
+            <motion.div
+              className="relative max-w-3xl w-[90%] max-h-[80vh] overflow-hidden p-4 bg-background-light dark:bg-background-dark rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+              <img
+                src={selectedArtwork.src}
+                alt={selectedArtwork.title}
+                className="w-full max-h-[60vh] object-contain rounded"
+              />
+              <div className="mt-4">
+                <h2 className="text-2xl font-semibold text-center md:text-left text-gray-900 dark:text-gray-100 break-words">
+                  {selectedArtwork.title}
+                </h2>
+                {selectedArtwork.description && (
+                  <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                    {selectedArtwork.description}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
