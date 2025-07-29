@@ -5,26 +5,43 @@ import { Link } from 'react-router-dom';
 import ArtworkCard from '../components/ArtworkCard.jsx';
 import { generateArtworkTitle } from '../utils/generateArtworkTitle.js';
 
-// Import images
-import artwork1 from '../assets/artwork1.png';
-import artwork2 from '../assets/artwork2.png';
-import artwork3 from '../assets/artwork3.png';
-import artwork4 from '../assets/artwork4.png';
+// Contentful client for fetching artwork entries
+import { client } from '../utils/contentfulClient.js';
+
+// Import static image used for the Visual Storytelling section only
 import artwork5 from '../assets/artwork5.png';
 
-/**
- * The Home page introduces the artist with a hero section, showcases
- * highlighted artworks, explains the storytelling approach, and ends with
- * a call‑to‑action section. Animations are added via Framer Motion to
- * bring subtle life to the layout.
- */
 export default function Home() {
-  const featuredWorks = [
-    { src: artwork1, title: 'Pastel Dream', category: 'Watercolor' },
-    { src: artwork2, title: 'Fantasy Lights', category: 'Digital' },
-    { src: artwork3, title: 'Whimsical Forest', category: 'Black & White' },
-    { src: artwork4, title: 'Character Whimsy', category: 'Character Design' },
-  ];
+  // Featured artworks fetched from Contentful
+  const [featuredWorks, setFeaturedWorks] = React.useState([]);
+  const [featuredLoading, setFeaturedLoading] = React.useState(true);
+  const [featuredError, setFeaturedError] = React.useState(null);
+
+  // Fetch featured artworks on mount
+  React.useEffect(() => {
+    async function fetchFeatured() {
+      try {
+        const response = await client.getEntries({
+          content_type: 'artwork',
+          'fields.featured': true,
+          limit: 4,
+        });
+        const mapped = response.items.map((entry) => ({
+          id: entry.sys.id,
+          title: entry.fields.title || '',
+          category: entry.fields.category,
+          src: `https:${entry.fields.image.fields.file.url}`,
+        }));
+        setFeaturedWorks(mapped);
+        setFeaturedLoading(false);
+      } catch (err) {
+        console.error(err);
+        setFeaturedError(err);
+        setFeaturedLoading(false);
+      }
+    }
+    fetchFeatured();
+  }, []);
 
   // Animated floating shapes in the hero background
   const shapes = [
@@ -106,10 +123,18 @@ export default function Home() {
             Featured Works
           </motion.h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredWorks.map((work, index) => {
-              const title = generateArtworkTitle(work, index);
-              return <ArtworkCard key={index} {...work} title={title} />;
-            })}
+            {featuredLoading ? (
+              <p className="col-span-full text-center text-lg">Loading artworks…</p>
+            ) : featuredError || featuredWorks.length === 0 ? (
+              <p className="col-span-full text-center text-lg">
+                No artworks available. Please check back later or ensure your Contentful entries are correctly configured.
+              </p>
+            ) : (
+              featuredWorks.map((work, index) => {
+                const title = generateArtworkTitle(work, index);
+                return <ArtworkCard key={work.id ?? index} {...work} title={title} />;
+              })
+            )}
           </div>
         </div>
       </section>
@@ -140,11 +165,7 @@ export default function Home() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
           >
-            <img
-              src={artwork5}
-              alt="Storytelling illustration"
-              className="rounded-lg shadow-lg w-full h-auto"
-            />
+            <img src={artwork5} alt="Storytelling illustration" className="rounded-lg shadow-lg w-full h-auto" />
           </motion.div>
         </div>
       </section>

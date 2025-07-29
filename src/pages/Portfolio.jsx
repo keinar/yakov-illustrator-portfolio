@@ -1,36 +1,46 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 
-import artwork1 from '../assets/artwork1.png';
-import artwork2 from '../assets/artwork2.png';
-import artwork3 from '../assets/artwork3.png';
-import artwork4 from '../assets/artwork4.png';
-import artwork5 from '../assets/artwork5.png';
-import artwork6 from '../assets/artwork6.png';
-
 // Utility for generating fallback titles when missing
 import { generateArtworkTitle } from '../utils/generateArtworkTitle.js';
 
-/**
- * Portfolio page showcases the full collection of artworks. Users can filter
- * by category and toggle between grid and list views. Framer Motion
- * animations make transitions smooth when filters change or when switching
- * layouts.
- */
+// Contentful client for fetching artwork entries
+import { client } from '../utils/contentfulClient.js';
+
 export default function Portfolio() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState('grid');
 
-  const artworks = [
-    { id: 1, title: 'Pastel Dream', category: 'Watercolor', src: artwork1 },
-    { id: 2, title: 'Fantasy Lights', category: 'Digital', src: artwork2 },
-    { id: 3, title: 'Whimsical Forest', category: 'Black & White', src: artwork3 },
-    { id: 4, title: 'Character Whimsy', category: 'Character Design', src: artwork4 },
-    { id: 5, title: 'Elegant Editorial', category: 'Editorial', src: artwork5 },
-    { id: 6, title: 'Narrative Piece', category: 'Narrative Art', src: artwork6 },
-  ];
+  // Artworks fetched from Contentful
+  const [artworks, setArtworks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch artworks from Contentful on mount
+  useEffect(() => {
+    async function fetchArtworks() {
+      try {
+        const response = await client.getEntries({ content_type: 'artwork' });
+        const mapped = response.items.map((entry) => {
+          return {
+            id: entry.sys.id,
+            title: entry.fields.title || '',
+            category: entry.fields.category,
+            src: `https:${entry.fields.image.fields.file.url}`,
+          };
+        });
+        setArtworks(mapped);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError(err);
+        setLoading(false);
+      }
+    }
+    fetchArtworks();
+  }, []);
 
   // Extract unique categories for filter buttons
   const categories = useMemo(() => {
@@ -43,6 +53,30 @@ export default function Portfolio() {
     if (selectedCategory === 'All') return artworks;
     return artworks.filter((a) => a.category === selectedCategory);
   }, [selectedCategory, artworks]);
+
+  // Render loading state
+  if (loading) {
+    return (
+      <section className="py-20 sm:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-lg">Loading artworks…</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Render error or empty state
+  if (error || artworks.length === 0) {
+    return (
+      <section className="py-20 sm:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-lg">
+            No artworks available. Please check back later or ensure your Contentful entries are correctly configured.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -130,12 +164,7 @@ export default function Portfolio() {
                       transition={{ duration: 0.3, ease: 'easeOut' }}
                       className="overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark"
                     >
-                      <img
-                        src={art.src}
-                        alt={title}
-                        className="w-full h-56 object-cover"
-                        loading="lazy"
-                      />
+                      <img src={art.src} alt={title} className="w-full h-56 object-cover" loading="lazy" />
                       <div className="p-4">
                         <h3 className="font-semibold text-lg mb-1">{title}</h3>
                         <p className="text-sm text-muted-light dark:text-muted-dark uppercase tracking-wider">

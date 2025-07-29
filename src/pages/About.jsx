@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
-import portrait from '../assets/portrait.png';
+import portrait from '../assets/portrait.jpeg';
 
 /**
  * About page shares Yakov’s biography, skills and creative process.  A
