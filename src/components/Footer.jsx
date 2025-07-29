@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaLinkedin, FaInstagram, FaEnvelope } from 'react-icons/fa';
+import { FaInstagram, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 
 /**
  * Footer component displays social links and contact information.  It lives
@@ -11,19 +11,19 @@ export default function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="font-serif text-lg font-semibold">Yakubov</p>
         <div className="flex items-center space-x-5">
-          {/* LinkedIn */}
+          {/* Whatsapp */}
           <a
-            href="https://www.linkedin.com"
+            href="https://wa.me/+48504674967"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="LinkedIn"
+            aria-label="Whatsapp"
             className="text-muted-light dark:text-muted-dark hover:text-accent-light dark:hover:text-accent-dark transition-colors"
           >
-            <FaLinkedin className="w-5 h-5" />
+            <FaWhatsapp className="w-5 h-5" />
           </a>
           {/* Instagram */}
           <a
-            href="https://www.instagram.com"
+            href="https://www.instagram.com/yaacovyaacobov/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"

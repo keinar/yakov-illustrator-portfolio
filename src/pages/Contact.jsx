@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FaLinkedin, FaInstagram, FaEnvelope, FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
+import { FaInstagram, FaEnvelope, FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 import emailjs from 'emailjs-com';
 
 export default function Contact() {
@@ -190,7 +190,7 @@ export default function Contact() {
                   </li>
                   <li className="flex items-center space-x-3">
                     <FaInstagram className="w-4 h-4" />
-                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                    <a href="https://www.instagram.com/yaacovyaacobov/" target="_blank" rel="noopener noreferrer" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
                       Instagram
                     </a>
                   </li>

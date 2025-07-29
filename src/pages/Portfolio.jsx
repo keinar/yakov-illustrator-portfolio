@@ -326,10 +326,10 @@ export default function Portfolio() {
             >
               ✕
             </button>
-            {/* Left arrow */}
+            {/* Left arrow: on mobile place closer to edge */}
             {filteredArtworks.length > 1 && (
               <div
-                className="absolute top-1/2 left-6 text-white text-4xl cursor-pointer select-none"
+                className="absolute top-1/2 left-2 sm:left-6 text-white text-5xl sm:text-4xl cursor-pointer select-none z-10"
                 style={{ transform: 'translateY(-50%)' }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -339,10 +339,10 @@ export default function Portfolio() {
                 ‹
               </div>
             )}
-            {/* Right arrow */}
+            {/* Right arrow: on mobile place closer to edge */}
             {filteredArtworks.length > 1 && (
               <div
-                className="absolute top-1/2 right-6 text-white text-4xl cursor-pointer select-none"
+                className="absolute top-1/2 right-2 sm:right-6 text-white text-5xl sm:text-4xl cursor-pointer select-none z-10"
                 style={{ transform: 'translateY(-50%)' }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -353,7 +353,7 @@ export default function Portfolio() {
               </div>
             )}
             <motion.div
-              className="relative max-w-3xl w-[90%] max-h-[80vh] overflow-hidden p-4 bg-background-light dark:bg-background-dark rounded-lg"
+              className="relative max-w-3xl w-[90%] max-h-[80vh] overflow-y-auto p-4 bg-background-light dark:bg-background-dark rounded-lg"
               onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

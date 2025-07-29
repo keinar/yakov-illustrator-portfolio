@@ -116,7 +116,7 @@ export default function Home() {
           >
             <Link
               to="/portfolio"
-              className="inline-block bg-accent-light dark:bg-accent-dark text-background-light dark:text-background-dark px-6 py-3 rounded-full font-semibold uppercase tracking-wide shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
+              className="self-center sm:self-start inline-block bg-accent-light dark:bg-accent-dark text-background-light dark:text-background-dark px-6 py-3 rounded-full font-semibold uppercase tracking-wide shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
             >
               Explore Portfolio
             </Link>
@@ -155,6 +155,15 @@ export default function Home() {
                 );
               })
             )}
+          </div>
+          {/* Link to portfolio page below featured works */}
+          <div className="mt-8 text-center">
+            <Link
+              to="/portfolio"
+              className="inline-block bg-accent-light dark:bg-accent-dark text-background-light dark:text-background-dark px-6 py-3 rounded-full font-semibold uppercase tracking-wide shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
+            >
+              See More Works
+            </Link>
           </div>
         </div>
       </section>
