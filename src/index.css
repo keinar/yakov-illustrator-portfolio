@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles */
+body {
+  @apply antialiased;
+}
+
+/* Custom selection colour */
+::selection {
+  @apply bg-accent-light text-background-light dark:bg-accent-dark dark:text-background-dark;
+}
+
+/* Scrollbar styling for WebKit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-accent-light dark:bg-accent-dark rounded;
+}
