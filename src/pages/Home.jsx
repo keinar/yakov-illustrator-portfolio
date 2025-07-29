@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import ArtworkCard from '../components/ArtworkCard.jsx';
+import { generateArtworkTitle } from '../utils/generateArtworkTitle.js';
 
 // Import images
 import artwork1 from '../assets/artwork1.png';
@@ -14,7 +15,7 @@ import artwork5 from '../assets/artwork5.png';
 /**
  * The Home page introduces the artist with a hero section, showcases
  * highlighted artworks, explains the storytelling approach, and ends with
- * a call‑to‑action section.  Animations are added via Framer Motion to
+ * a call‑to‑action section. Animations are added via Framer Motion to
  * bring subtle life to the layout.
  */
 export default function Home() {
@@ -36,7 +37,10 @@ export default function Home() {
     <>
       <Helmet>
         <title>Home – Yakov Yakubov</title>
-        <meta name="description" content="Welcome to the portfolio of illustrator Yakov Yakubov. Discover featured artworks and learn about his visual storytelling approach." />
+        <meta
+          name="description"
+          content="Welcome to the portfolio of illustrator Yakov Yakubov. Discover featured artworks and learn about his visual storytelling approach."
+        />
       </Helmet>
       {/* Hero Section */}
       <section className="relative overflow-hidden py-24 sm:py-32 lg:py-40">
@@ -47,7 +51,12 @@ export default function Home() {
             className="absolute rounded-full bg-accent-light dark:bg-accent-dark opacity-30 mix-blend-multiply"
             style={{ width: shape.size, height: shape.size, top: shape.y, left: shape.x }}
             animate={{ y: [0, -20, 0], x: [0, 20, 0] }}
-            transition={{ duration: 8, repeat: Infinity, delay: shape.delay, ease: 'easeInOut' }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              delay: shape.delay,
+              ease: 'easeInOut',
+            }}
           />
         ))}
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start text-center sm:text-left max-w-4xl">
@@ -67,7 +76,8 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: 'easeOut', delay: 0.2 }}
           >
-            Illustrator & visual storyteller crafting unforgettable images that spark imagination and emotion.
+            Illustrator & visual storyteller crafting unforgettable images that spark imagination
+            and emotion.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -96,9 +106,10 @@ export default function Home() {
             Featured Works
           </motion.h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredWorks.map((work, index) => (
-              <ArtworkCard key={index} {...work} />
-            ))}
+            {featuredWorks.map((work, index) => {
+              const title = generateArtworkTitle(work, index);
+              return <ArtworkCard key={index} {...work} title={title} />;
+            })}
           </div>
         </div>
       </section>
@@ -115,9 +126,9 @@ export default function Home() {
             <h2 className="text-3xl sm:text-4xl font-serif font-semibold mb-4">Visual Storytelling</h2>
             <p className="text-lg leading-relaxed text-muted-light dark:text-muted-dark">
               My art is rooted in storytelling – each line and colour choice is made with
-              intention to guide the viewer’s eye and evoke emotion.  I merge traditional
+              intention to guide the viewer’s eye and evoke emotion. I merge traditional
               techniques with modern digital tools to craft imagery that resonates across
-              cultures and generations.  From editorial pieces to children’s books and
+              cultures and generations. From editorial pieces to children’s books and
               character design, my work captures the essence of the narrative and invites
               audiences into new worlds.
             </p>
@@ -156,7 +167,7 @@ export default function Home() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
           >
-            Ready to bring your story to life?  I’d love to hear about your project and
+            Ready to bring your story to life? I’d love to hear about your project and
             explore how we can create something extraordinary together.
           </motion.p>
           <motion.div

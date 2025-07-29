@@ -10,9 +10,12 @@ import artwork4 from '../assets/artwork4.png';
 import artwork5 from '../assets/artwork5.png';
 import artwork6 from '../assets/artwork6.png';
 
+// Utility for generating fallback titles when missing
+import { generateArtworkTitle } from '../utils/generateArtworkTitle.js';
+
 /**
- * Portfolio page showcases the full collection of artworks.  Users can filter
- * by category and toggle between grid and list views.  Framer Motion
+ * Portfolio page showcases the full collection of artworks. Users can filter
+ * by category and toggle between grid and list views. Framer Motion
  * animations make transitions smooth when filters change or when switching
  * layouts.
  */
@@ -45,7 +48,10 @@ export default function Portfolio() {
     <>
       <Helmet>
         <title>Portfolio – Yakov Yakubov</title>
-        <meta name="description" content="Explore the comprehensive collection of Yakov Yakubov’s artistic journey across various styles and mediums." />
+        <meta
+          name="description"
+          content="Explore the comprehensive collection of Yakov Yakubov’s artistic journey across various styles and mediums."
+        />
       </Helmet>
       <section className="py-20 sm:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,7 +69,8 @@ export default function Portfolio() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
           >
-            A comprehensive collection of my artistic journey, showcasing various styles, mediums, and creative explorations across different projects and periods.
+            A comprehensive collection of my artistic journey, showcasing various styles,
+            mediums, and creative explorations across different projects and periods.
           </motion.p>
           {/* Filters and view toggle */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -72,7 +79,11 @@ export default function Portfolio() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${selectedCategory === cat ? 'bg-accent-light text-background-light dark:bg-accent-dark dark:text-background-dark' : 'border-muted-light dark:border-muted-dark text-muted-light dark:text-muted-dark hover:bg-accent-light/10 dark:hover:bg-accent-dark/10'}`}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                    selectedCategory === cat
+                      ? 'bg-accent-light text-background-light dark:bg-accent-dark dark:text-background-dark'
+                      : 'border-muted-light dark:border-muted-dark text-muted-light dark:text-muted-dark hover:bg-accent-light/10 dark:hover:bg-accent-dark/10'
+                  }`}
                 >
                   {cat}
                 </button>
@@ -82,14 +93,22 @@ export default function Portfolio() {
               <button
                 aria-label="Grid view"
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded hover:bg-accent-light/10 dark:hover:bg-accent-dark/10 transition-colors ${viewMode === 'grid' ? 'text-accent-light dark:text-accent-dark' : 'text-muted-light dark:text-muted-dark'}`}
+                className={`p-2 rounded hover:bg-accent-light/10 dark:hover:bg-accent-dark/10 transition-colors ${
+                  viewMode === 'grid'
+                    ? 'text-accent-light dark:text-accent-dark'
+                    : 'text-muted-light dark:text-muted-dark'
+                }`}
               >
                 <Squares2X2Icon className="w-5 h-5" />
               </button>
               <button
                 aria-label="List view"
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded hover:bg-accent-light/10 dark:hover:bg-accent-dark/10 transition-colors ${viewMode === 'list' ? 'text-accent-light dark:text-accent-dark' : 'text-muted-light dark:text-muted-dark'}`}
+                className={`p-2 rounded hover:bg-accent-light/10 dark:hover:bg-accent-dark/10 transition-colors ${
+                  viewMode === 'list'
+                    ? 'text-accent-light dark:text-accent-dark'
+                    : 'text-muted-light dark:text-muted-dark'
+                }`}
               >
                 <ListBulletIcon className="w-5 h-5" />
               </button>
@@ -97,66 +116,71 @@ export default function Portfolio() {
           </div>
           {/* Gallery */}
           {viewMode === 'grid' ? (
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-              layout
-            >
+            <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" layout>
               <AnimatePresence>
-                {filteredArtworks.map((art) => (
-                  <motion.div
-                    key={art.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark"
-                  >
-                    <img
-                      src={art.src}
-                      alt={art.title}
-                      className="w-full h-56 object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-4">
-                      <h3 className="font-semibold text-lg mb-1">{art.title}</h3>
-                      <p className="text-sm text-muted-light dark:text-muted-dark uppercase tracking-wider">{art.category}</p>
-                    </div>
-                  </motion.div>
-                ))}
+                {filteredArtworks.map((art, index) => {
+                  const title = generateArtworkTitle(art, index);
+                  return (
+                    <motion.div
+                      key={art.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                      className="overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark"
+                    >
+                      <img
+                        src={art.src}
+                        alt={title}
+                        className="w-full h-56 object-cover"
+                        loading="lazy"
+                      />
+                      <div className="p-4">
+                        <h3 className="font-semibold text-lg mb-1">{title}</h3>
+                        <p className="text-sm text-muted-light dark:text-muted-dark uppercase tracking-wider">
+                          {art.category}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </motion.div>
           ) : (
-            <motion.div
-              className="space-y-6"
-              layout
-            >
+            <motion.div className="space-y-6" layout>
               <AnimatePresence>
-                {filteredArtworks.map((art) => (
-                  <motion.div
-                    key={art.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="flex flex-col md:flex-row overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark"
-                  >
-                    <img
-                      src={art.src}
-                      alt={art.title}
-                      className="w-full md:w-64 h-56 md:h-auto object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-4 flex-1">
-                      <h3 className="font-semibold text-xl mb-2">{art.title}</h3>
-                      <p className="text-sm text-muted-light dark:text-muted-dark uppercase tracking-wider mb-4">{art.category}</p>
-                      <p className="text-base text-muted-light dark:text-muted-dark">
-                        This piece explores the nuances of {art.category.toLowerCase()} illustration through thoughtful composition and rich detail.
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
+                {filteredArtworks.map((art, index) => {
+                  const title = generateArtworkTitle(art, index);
+                  return (
+                    <motion.div
+                      key={art.id}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                      className="flex flex-col md:flex-row overflow-hidden rounded-lg shadow-md bg-background-light dark:bg-background-dark"
+                    >
+                      <img
+                        src={art.src}
+                        alt={title}
+                        className="w-full md:w-64 h-56 md:h-auto object-cover"
+                        loading="lazy"
+                      />
+                      <div className="p-4 flex-1">
+                        <h3 className="font-semibold text-xl mb-2">{title}</h3>
+                        <p className="text-sm text-muted-light dark:text-muted-dark uppercase tracking-wider mb-4">
+                          {art.category}
+                        </p>
+                        <p className="text-base text-muted-light dark:text-muted-dark">
+                          This piece explores the nuances of {art.category.toLowerCase()} illustration through
+                          thoughtful composition and rich detail.
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </motion.div>
           )}
