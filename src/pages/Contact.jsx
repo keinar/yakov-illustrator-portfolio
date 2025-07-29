@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FaLinkedin, FaInstagram, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaEnvelope, FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
+import emailjs from 'emailjs-com';
 
-/**
- * Contact page provides a form for visitors to reach out and offers
- * alternative contact methods.  Validation ensures required fields are
- * populated and email format is correct.  After submission a confirmation
- * message is displayed.
- */
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const newErrors = {};
@@ -31,11 +27,30 @@ export default function Contact() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      // Simulate submission
-      setSubmitted(true);
+      setLoading(true);
+
+      try {
+        await emailjs.send(
+          import.meta.env.VITE_EMAILJS_SERVICE_ID,
+          import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+          {
+            from_name: formData.name,
+            from_email: formData.email,
+            message: formData.message,
+          },
+          import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        );
+
+        setSubmitted(true);
+      } catch (error) {
+        console.error('EmailJS Error:', error);
+        alert('There was an error sending your message. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -141,9 +156,10 @@ export default function Contact() {
               <div className="text-center">
                 <button
                   type="submit"
+                  disabled={loading}
                   className="inline-block bg-accent-light dark:bg-accent-dark text-background-light dark:text-background-dark px-8 py-3 rounded-full font-semibold uppercase tracking-wide shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
                 >
-                  Send Message
+                  {loading ? 'Sending...' : 'Send Message'}
                 </button>
               </div>
             </form>
@@ -156,20 +172,20 @@ export default function Contact() {
                 <ul className="space-y-2 text-muted-light dark:text-muted-dark">
                   <li className="flex items-center space-x-3">
                     <FaEnvelope className="w-4 h-4" />
-                    <a href="mailto:yakubov@example.com" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                      yakubov@example.com
+                    <a href="mailto:contact@yyakubov.com" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                      contact@yyakubov.com
                     </a>
                   </li>
                   <li className="flex items-center space-x-3">
                     <FaPhoneAlt className="w-4 h-4" />
-                    <a href="tel:+1234567890" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                      +1 (234) 567‑890
+                    <a href="tel:+48504674967" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                      +48 504 674 967
                     </a>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <FaLinkedin className="w-4 h-4" />
-                    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                      LinkedIn
+                    <FaWhatsapp className="w-4 h-4" />
+                    <a href="https://wa.me/+48504674967" target="_blank" rel="noopener noreferrer" className="hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                      WhatsApp
                     </a>
                   </li>
                   <li className="flex items-center space-x-3">
